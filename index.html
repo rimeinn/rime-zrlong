@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自然龙输入方案 - 韵调统一 四码定长</title>
+    <style>
+        :root {
+            /* 核心配色 - 保持你的青色系，但更丰富 */
+            --primary: #0d9488;
+            --primary-hover: #0f766e;
+            --primary-dark: #134e4a;
+            --primary-light: #ccfbf1;
+            --primary-soft: #f0fdfa;
+            
+            --text-main: #1e293b;
+            --text-gray: #475569;
+            --text-light: #94a3b8;
+            
+            --bg-body: #f8fafc;
+            --border: #e2e8f0;
+            
+            /* 柔和的阴影系统 */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+            --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: var(--primary); transition: color 0.2s; }
+        a:hover { color: var(--primary-hover); }
+
+        /* --- Header: 增加纹理，更加通透 --- */
+        header {
+            /* 基础底色：稍微带一点冷色调，不再是纯白或纯灰 */
+            background-color: #f1f5f9;
+            
+            /* 核心修改：加强版柔光 */
+            /* L (亮度) 从 96% 降到了 85-88%，颜色更实 */
+            /* 透明度范围从 50% 扩大到 60%，让晕染范围更大 */
+            background-image: 
+                /* 左上角：主色调青色 - 明显增强 */
+                radial-gradient(at 0% 0%, hsla(175, 75%, 85%, 1) 0px, transparent 70%),
+                /* 底部：淡淡的薄荷绿 - 托底 */
+                radial-gradient(at 50% 100%, hsla(160, 65%, 90%, 0.8) 0px, transparent 50%);
+                
+            padding: 6rem 1rem 5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(13, 148, 136, 0.1); /* 边框也稍微加深一点点 */
+            position: relative;
+            overflow: hidden;
+        }
+        /* --- 头部布局：文字左对齐 + Logo 右置 --- */
+        .header-lockup {
+            display: flex;
+            align-items: center;    /* 垂直居中 */
+            justify-content: center; /* 整体在页面中间 */
+            gap: 4rem;              /* 拉大间距，显得大气 */
+            margin-bottom: 2rem;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 1rem;
+        }
+
+        /* 文字组：强制左对齐 */
+        .text-group {
+            text-align: left;       /* 核心修改：左对齐 */
+            flex: 1;                /* 占据剩余空间 */
+        }
+
+        .header-lockup h1 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            line-height: 1.1;
+            /* 既然左对齐，背景渐变也稍微调整角度 */
+            background: linear-gradient(120deg, #1e293b 0%, #0f766e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-left: -10px;
+        }
+
+        .header-lockup .subtitle {
+            margin-left: 0 !important;         /* 确保左边没有间距 */
+            margin-right: auto;     /* 确保靠左 */
+            margin-bottom: 0;
+            font-size: 1.4rem;
+        }
+
+        /* --- Logo 区域布局 --- */
+        .logo-group {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        /* 1. 外层容器：专门负责上下浮动动画 */
+        .logo-floater {
+            /* 这里的动画只控制位置移动，不控制缩放和阴影 */
+            animation: floatUpAndDown 4s ease-in-out infinite;
+        }
+
+        /* 2. Logo 图片本体：专门负责静态样式、阴影和过渡 */
+        .header-logo-img {
+            width: 150px;
+            height: auto;
+            
+            /* 基础状态：你调整后的淡雅参数 */
+            filter: 
+                drop-shadow(0 10px 10px rgba(0, 0, 0, 0.15)) 
+                drop-shadow(0 0 10px rgba(13, 148, 136, 0.5));
+            
+            /* 核心修改：这里设置你想要的 0.8s 甚至更长的过渡时间 */
+            /* 加上 will-change 提升浏览器渲染性能，防止卡顿 */
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform, filter;
+        }
+
+        /* 3. 鼠标悬停交互：只改变缩放和阴影 */
+        .header-logo-img:hover {
+            /* 慢慢变大 */
+            transform: scale(1.08); 
+            
+            /* 慢慢变亮 */
+            filter: 
+                drop-shadow(0 18px 18px rgba(0, 0, 0, 0.2)) 
+                drop-shadow(0 0 18px rgba(13, 148, 136, 0.75)); 
+        }
+
+        /* 定义浮动动画 (只控制 translateY) */
+        @keyframes floatUpAndDown {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px); /* 上浮 8px */
+            }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .header-logo-img { width: 120px; }
+        }
+
+        /* 呼吸动画关键帧：必须基于你的新参数微调，否则会跳变 */
+        @keyframes dragonBreath {
+            0%, 100% {
+                /* 对应基础状态 */
+                filter: 
+                    drop-shadow(0 10px 10px rgba(0, 0, 0, 0.15)) 
+                    drop-shadow(0 0 10px rgba(13, 148, 136, 0.5));
+                transform: translateY(0);
+            }
+            50% {
+                /* 呼吸时稍微变亮一点点，位置微动 */
+                filter: 
+                    drop-shadow(0 12px 12px rgba(0, 0, 0, 0.1)) 
+                    drop-shadow(0 0 12px rgba(13, 148, 136, 0.65));
+                transform: translateY(-6px);
+            }
+        }
+        /* 标题增加一点层次 */
+        header h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.03em; /* 稍微收紧字间距，更现代 */
+            line-height: 1.1;
+            
+            /* 核心修改：深色渐变文字 */
+            background: linear-gradient(135deg, #1e293b 20%, #0f766e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; /* 让文字透明，透出背景渐变 */
+            background-clip: text;
+            
+            /* 增加一个极其微弱的投影，增加立体感 */
+            filter: drop-shadow(0 2px 10px rgba(15, 118, 110, 0.15));
+        }
+
+        header .subtitle {
+            font-size: 1.35rem;
+            color: #5d758a;
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+            max-width: 1080px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- Buttons: 更现代的方圆角 --- */
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            /* 核心修改：增加间距到 2.5rem */
+            gap: 2.5rem; 
+            margin-top: 3rem;
+            /* 限制最大宽度，防止在 4K 屏上按钮分太开 */
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.6rem;
+            border-radius: 14px; /* 方圆角，更现代 */
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+            text-decoration: none !important;
+            gap: 8px;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #0e857a 100%);
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(13, 148, 136, 0.35);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--text-main);
+            border-color: #cbd5e1;
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-qq {
+            background-color: #EFF6FF;
+            color: #2563EB;
+            border-color: transparent;
+        }
+        .btn-qq:hover { background-color: #DBEAFE; transform: translateY(-2px); color: #1d4ed8; }
+         /* 新增：速学程序按钮 (靛紫色渐变，代表智慧与学习) */
+        .btn-learn {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-learn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+        }
+        .btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+        /* --- Main Layout --- */
+        .main-container {
+            max-width: 1080px;
+            margin: 0 auto 4rem;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* --- Tabs: 悬浮胶囊样式 --- */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            /* 毛玻璃效果 */
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            
+            border-radius: 24px;
+            padding: 0.6rem;
+            box-shadow: var(--shadow-lg);
+            
+            /* 让它浮在 Header 和 Content 之间 */
+            margin-top: -3rem; 
+            margin-bottom: 3rem;
+            
+            overflow-x: auto;
+            border: 1px solid rgba(255,255,255,0.6);
+            position: relative;
+            z-index: 20;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tab-btn {
+            padding: 0.6rem 1.4rem;
+            border: none;
+            background: transparent;
+            color: var(--text-gray);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover { color: var(--primary); background: var(--primary-light); }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.2);
+            transform: scale(1.02);
+        }
+
+        /* --- Content Panes --- */
+        .tab-content {
+            /* 移除原本的白色背景框，让内容更自然地流淌，或者保持但弱化边框 */
+            background: transparent; 
+            min-height: 400px;
+        }
+        
+        .tab-pane { display: none; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .tab-pane.active { display: block; }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- [NEW] Intro Lead Styling: 修复简介段落 --- */
+        .intro-lead {
+            text-align: left; /* 左对齐 */
+            max-width: 100%;
+            margin: 0 auto 3.5rem;
+            
+            /* 卡片化设计 */
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+            box-shadow: var(--shadow-md);
+            
+            font-size: 1.1rem;
+            color: #334155;
+            line-height: 1.8;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 顶部装饰条 */
+        .intro-lead::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        }
+
+        .intro-lead strong {
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        /* --- Feature Cards: 更柔和 --- */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            border: 1px solid transparent; /* 默认无边框 */
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+            z-index: 2;
+        }
+        
+        .feature-card h3 {
+            color: var(--text-main);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        /* 图标加个背景底 */
+        .feature-card h3 svg { 
+            width: 24px; height: 24px; 
+            color: var(--primary); 
+            background: var(--primary-soft);
+            padding: 8px;
+            box-sizing: content-box;
+            border-radius: 10px;
+        }
+        
+        .feature-card p { color: var(--text-gray); font-size: 0.95rem; line-height: 1.6; margin: 0; }
+
+        /* --- Typography & Elements --- */
+        h2 { 
+            font-size: 2rem; 
+            margin-bottom: 2.5rem; 
+            color: var(--text-main); 
+            font-weight: 700;
+            text-align: center; /* 标题居中更得体 */
+        }
+        
+        h3.section-title { 
+            font-size: 1.4rem; 
+            margin: 4rem 0 1.5rem; 
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        h3.section-title::before {
+            content: ''; display: block; width: 4px; height: 1.4rem; background: var(--primary); border-radius: 2px;
+        }
+        
+        /* Alert Box 优化 */
+        .alert-box {
+            padding: 1.25rem 1.75rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            border-left-width: 4px;
+            border-style: solid;
+            box-shadow: var(--shadow-sm);
+        }
+        .alert-warning { background: #fffbeb; border-color: #f59e0b; color: #92400e; }
+        .alert-info { background: #f0fdfa; border-color: #0d9488; color: #0f766e; }
+
+        /* Tables */
+        .table-wrap { 
+            overflow: hidden; 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            margin: 1.5rem 0; 
+            box-shadow: var(--shadow-sm); 
+            background: white;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: #f8fafc; font-weight: 600; text-align: left; padding: 1.2rem 1.5rem; color: var(--text-main); border-bottom: 1px solid var(--border); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        td { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); color: var(--text-gray); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #f1f5f9; }
+
+        /* --- 代码样式优化 --- */
+
+        /* 1. 行内代码 (如：在文中提到的 `git` ) - 保持浅色清爽 */
+        code {
+            background: rgba(13, 148, 136, 0.1); /* 浅青色背景 */
+            color: var(--primary-dark);           /* 深青色文字 */
+            padding: 0.2em 0.5em;
+            border-radius: 6px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        /* 2. 终端代码块 (如 Git 命令) - 深色沉浸式 + 高对比度 */
+        pre {
+            /* 深邃的蓝黑色背景，契合青色主题 */
+            background: #0f172a; 
+            /* 边框微亮 */
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 3rem 1.5rem 1.5rem; /* 顶部留出空间给装饰点 */
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5); /* 较深的阴影增加立体感 */
+            position: relative; /* 为了定位装饰点 */
+        }
+
+        /* 3. 终端装饰点 (红黄绿小圆点，模拟 Mac 窗口) */
+        pre::before {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            /* 红色点 */
+            background: #ef4444; 
+            /* 利用 box-shadow 生成黄色和绿色点 */
+            box-shadow: 20px 0 0 #f59e0b, 40px 0 0 #10b981;
+        }
+
+        /* 4. 修复代码块内的文字颜色 (核心修复点) */
+        pre code {
+            background: transparent;  /* 去掉行内代码的浅色背景 */
+            color: #2dd4bf;           /* 亮荧光青色，在深色背景上极其清晰 */
+            padding: 0;               /* 去掉内边距 */
+            font-weight: 500;         /* 字体稍微细一点，更像终端 */
+            border-radius: 0;
+            text-shadow: 0 0 2px rgba(45, 212, 191, 0.3); /* 微弱的发光效果 */
+        }
+
+        /* 选中代码时的颜色 */
+        pre code::selection {
+            background: rgba(45, 212, 191, 0.3);
+            color: #fff;
+        }
+
+        /* Images */
+        .img-fluid { 
+            max-width: 100%; height: auto; 
+            border-radius: 12px; 
+            border: 1px solid var(--border); 
+            background: white; 
+            box-shadow: var(--shadow-sm); 
+        }
+        
+        .zoom-img {
+            cursor: zoom-in;
+            transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.4s;
+            position: relative;
+            z-index: 10;
+            background: white; /* 防止透明图片重叠 */
+        }
+        .zoom-img:hover {
+            transform: scale(1.6);
+            z-index: 100;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-color: transparent;
+        }
+
+        .demo-img {
+            height: auto;
+            width: 140px;
+            border-radius: 6px;
+            vertical-align: middle;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+            cursor: zoom-in;
+            background: white;
+            padding: 4px; /* 像相框一样 */
+        }
+        .demo-img:hover {
+            transform: scale(1.8);
+            box-shadow: var(--shadow-lg);
+            z-index: 50;
+            position: relative;
+        }
+
+        .vertical-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 5rem;
+            margin: 4rem auto;
+            max-width: 850px;
+        }
+        .stack-item { text-align: center; }
+        .stack-item p { margin-top: 1.5rem; color: var(--text-gray); font-size: 1rem; font-weight: 500; }
+
+        /* Footer */
+        footer { 
+            text-align: center; 
+            padding: 5rem 1rem; 
+            color: var(--text-light); 
+            font-size: 0.9rem; 
+            background: linear-gradient(180deg, var(--bg-body) 0%, #eef2f6 100%);
+            border-top: 1px solid var(--border); 
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.2rem; }
+            .hero-actions { flex-direction: column; padding: 0 2rem; }
+            .btn { width: 100%; }
+            .intro-lead { padding: 1.5rem; font-size: 1rem; }
+            .zoom-img:hover { transform: scale(1.1); }
+            .demo-img:hover { transform: scale(1.2); }
+            
+            /* 移动端 Tab 优化 */
+            .tab-nav {
+                justify-content: flex-start;
+                margin-left: 1rem; margin-right: 1rem;
+                border-radius: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="max-width: 1080px; margin: 0 auto;">
+      <div class="header-lockup">
+            <!-- 左边：文字区域 -->
+            <div class="text-group">
+                <h1>自然龙输入方案</h1>
+                <p class="subtitle">韵调统一 · 静态码表 · 四码定长 · 极致手感</p>
+            </div>
+
+            <!-- 右侧：Logo 区域 -->
+            <div class="logo-group">
+                <!-- 新增一个外层 div，专门负责上下浮动 -->
+                <div class="logo-floater">
+                    <a href="https://github.com/rimeinn/rime-zrlong" target="_blank">
+                        <img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/zrlong_logo.png" alt="自然龙 Logo" class="header-logo-img">
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="hero-actions">
+            <a href="https://github.com/rimeinn/rime-zrlong/releases" target="_blank" class="btn btn-primary">
+                <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>
+                下载安装包
+            </a>
+            
+            <a href="https://my-rime.vercel.app/?plum=Elflare/rime-zrlong:zrlong,zrlong_sentence" target="_blank" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                线上试用
+            </a>
+            <!-- 【新增位置】：自然龙速学程序 -->
+            <a href="https://hanxinma.github.io/js/xuexi5.html" target="_blank" class="btn btn-learn">
+                <!-- 学士帽图标 -->
+                <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+                速学程序
+            </a>
+            <a href="https://qm.qq.com/q/yj4E0tBrOg" target="_blank" class="btn btn-qq">
+                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z" style="display:none;"/>
+                <path d="M8.22 13.52c0 .02.04.04.1.05.05.01.12 0 .18-.03.58-.29 1.19-.18 1.19-.18.1.03.22.1.28.25.07.16.03.35-.09.48-.09.09-.22.13-.35.13-.08 0-.16-.02-.23-.05-1.02-.42-1.84.15-1.87.18-.09.05-.2.06-.29.02-.09-.04-.15-.12-.17-.22-.01-.11.04-.21.12-.27.02-.01.55-.4 1.13-.36zm7.56 0c.58-.04 1.11.35 1.13.36.08.06.13.16.12.27-.02.1-.08.18-.17.22-.09.04-.2.03-.29-.02-.03-.03-.85-.6-1.87-.18-.07.03-.15.05-.23.05-.13 0-.26-.04-.35-.13-.12-.13-.16-.32-.09-.48.06-.15.18-.22.28-.25 0 0 .61-.11 1.19.18.06.03.13.04.18.03.06-.01.1-.03.1-.05zM12 20.33c-3.13 0-5.83-1.66-5.83-4.55 0-.19.01-.39.04-.57-1.11-.6-1.55-1.92-1.55-1.92-.09-.34-.02-.68.27-.96.25-.24.71-.38 1.18-.09 0 0 .33.22.75.4.15-1.42 1.05-3.3 5.14-3.3s5.01 1.9 5.15 3.31c.41-.18.73-.4.73-.4.47-.29.93-.15 1.18.09.29.28.36.62.27.96 0 0-.44 1.32-1.55 1.92.03.18.04.38.04.57 0 2.89-2.7 4.55-5.82 4.55z"/></svg>
+                加入群聊
+            </a>
+
+            <a href="https://github.com/Elflare/rime-zrlong" target="_blank" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                GitHub
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="main-container">
+    
+    <nav class="tab-nav">
+        <button class="tab-btn active" onclick="openTab('intro')">简介</button>
+        <button class="tab-btn" onclick="openTab('install')">安装</button>
+        <button class="tab-btn" onclick="openTab('usage')">用法</button>
+        <button class="tab-btn" onclick="openTab('features')">功能</button>
+        <button class="tab-btn" onclick="openTab('performance')">性能</button>
+        <button class="tab-btn" onclick="openTab('credits')">鸣谢</button>
+    </nav>
+
+    <!-- 1. 简介 Tab -->
+    <div id="intro" class="tab-content tab-pane active">
+        
+        <!-- [修改] 优化后的简介段落 -->
+        <div class="intro-lead">
+            <strong>自然龙</strong> 是一种在传统双拼基础上进行创新的输入法，它<strong>使韵母带调</strong>，采用<strong>四码定长</strong>的方式进行输入。<br>
+            相比传统方案，它更确定、更高效，且富有节奏感。
+        </div>
+
+        <div class="alert-box alert-warning">
+            <strong>免责声明：</strong>本仓库为自用分享，可能存在诸多不足和错误。如果您选择使用此仓库，请自行承担可能产生的风险和责任。
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+                    韵调统一
+                </h3>
+                <p>将韵母带上声调并统一在一个键上。解决了传统双拼重码多的问题，也避免了传统带调方案码长过长的问题。</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    静态码表
+                </h3>
+                <p>使用静态码表，确定性 100%，所有字词尽在掌握。可随意盲打，安全感拉满。告别动态调频带来的忽前忽后。</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                    四码定长
+                </h3>
+                <p>单字和词组最大码长为 4。打 2 字词<strong>声韵声韵</strong>，节奏感强，输入体验舒适。</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
+                    双拼加形
+                </h3>
+                <p>结合双拼高效率与形码高准确性。采用自然码辅助码：首码<strong>义部优先，次码取大</strong>，直观自然。</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    手感优化
+                </h3>
+                <p>韵母分布利用程序算法 + 人工设计，<strong>重码率</strong>和<strong>手感</strong>皆超过传统音形、形码输入法。</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    字词库大
+                </h3>
+                <p>目前已包含 <strong>4.5 万 +</strong> 单字和 <strong>16 万 +</strong> 词组，满足各种输入场景。</p>
+            </div>
+        </div>
+
+        <h3 class="section-title">重码离散展示</h3>
+        <p>以下是传统双拼常见的重码词组，自然龙可以<strong>全部离散</strong>：</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>重码词组</th><th>自然龙编码</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>哪里、那里</td><td><code>nmlg</code>、<code>nilg</code></td></tr>
+                    <tr><td>不对、部队</td><td><code>bldf</code>、<code>bhdf</code></td></tr>
+                    <tr><td>同时、同事</td><td><code>tjub</code>、<code>tjut</code></td></tr>
+                    <tr><td>教室、教师</td><td><code>jlut</code>、<code>jluj</code></td></tr>
+                    <tr><td>使用、试用、实用</td><td><code>ugyy</code>、<code>utyy</code>、<code>ubyy</code></td></tr>
+                    <tr><td>事件、时间、实践、世间</td><td><code>utja</code>、<code>ubjr</code>、<code>ubja</code>、<code>utjr</code></td></tr>
+                    <tr><td>事实、试试、实时、实事</td><td><code>utub</code>、<code>utut</code>、<code>ubub</code>、<code>ubut</code></td></tr>
+                    <tr><td>消失、消逝、小事、小时</td><td><code>xmuj</code>、<code>xmut</code>、<code>xlut</code>、<code>xlub</code></td></tr>
+                    <tr><td>物理、屋里、无力、武力</td><td><code>whlg</code>、<code>walg</code>、<code>wllt</code>、<code>wmlt</code></td></tr>
+                    <tr><td>知识、只是、智识、指使、芝士</td><td><code>vjub</code>、<code>vgut</code>、<code>vtub</code>、<code>vgug</code>、<code>vjut</code></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert-box alert-info">
+            <h4>🎉 更新日志</h4>
+            <ul style="margin-top: 0.5rem">
+                <li><strong>2025.01.19</strong>：新增字词动态模式。1-3 码静态，4 码所有字词动态调频。</li>
+                <li><strong>2024.05.13</strong>：新增带辅的整句模式。详情见 <a href="https://github.com/jack2game/rime-molong">魔龙</a>。</li>
+                <li><strong>2024.04.25</strong>：增加整句模式 (Thanks to <a href="https://github.com/hanzi-chai/rime-snow-pinyin">冰雪拼音</a>)。</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 2. 安装 Tab -->
+    <div id="install" class="tab-content tab-pane">
+        <h2>安装</h2>
+        <div class="alert-box alert-warning">
+            注意：首先确保已经装了 <a href="https://rime.im/">Rime (中州韵)</a>，若已有配置文件请先备份。
+        </div>
+
+        <h3 class="section-title">使用 Git 安装 (推荐)</h3>
+        <p>如果您已经安装了 Git，可以直接在终端执行以下命令：</p>
+        <pre><code class="git-command">git clone --depth=1 https://github.com/Elflare/rime-zrlong.git "您的 Rime 用户目录"</code></pre>
+
+        <h3 class="section-title">手动安装</h3>
+        <ol>
+            <li><strong>下载 Release 文件</strong>：点击 <a href="https://github.com/rimeinn/rime-zrlong/releases">Releases</a>，找到最新的压缩包下载。</li>
+            <li><strong>解压</strong>：将下载的 ZIP 文件解压。</li>
+            <li><strong>复制文件</strong>：将<strong>里面的所有文件（包含文件夹）</strong>解压到<code>您的 Rime 用户目录</code>。</li>
+        </ol>
+    </div>
+
+    <!-- 3. 用法 Tab -->
+    <div id="usage" class="tab-content tab-pane">
+        <h2>用法</h2>
+
+        <h3 class="section-title">键位与字根</h3>
+        <div class="vertical-stack">
+            <div class="stack-item">
+                <img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/sample/jianwei.jpg" alt="键位图片" class="img-fluid zoom-img">
+                <p>键位图（鼠标悬停放大）</p>
+            </div>
+            <div class="stack-item">
+                <img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/sample/fuzhuma.jpg" alt="辅助码字根" class="img-fluid zoom-img">
+                <p>辅助码字根（来源：魔然）</p>
+            </div>
+        </div>
+
+        <h3 class="section-title">编码方式</h3>
+
+        <h4>单字编码</h4>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>单字编码</th><th>演示编码</th><th>演示图片</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>声</td><td><code>d</code></td><td><img src="https://raw.githubusercontent.com/Elflare/images-repo/refs/heads/main/zrlong/sample/d.jpg" class="demo-img"></td></tr>
+                    <tr><td>声韵</td><td><code>di</code></td><td><img src="https://raw.githubusercontent.com/Elflare/images-repo/refs/heads/main/zrlong/sample/di.jpg" class="demo-img"></td></tr>
+                    <tr><td>零声母一简</td><td><code>a</code></td><td><img src="https://raw.githubusercontent.com/Elflare/images-repo/refs/heads/main/zrlong/sample/a.jpg" class="demo-img"></td></tr>
+                    <tr><td>零声母 + 韵母</td><td><code>ao</code> / <code>aw</code></td><td><img src="https://raw.githubusercontent.com/Elflare/images-repo/refs/heads/main/zrlong/sample/ao.jpg" class="demo-img"></td></tr>
+                    <tr><td>声韵辅</td><td><code>usu</code></td><td><img src="https://raw.githubusercontent.com/Elflare/images-repo/refs/heads/main/zrlong/sample/usu.jpg" class="demo-img"></td></tr>
+                    <tr><td>声韵辅辅</td><td><code>ytdy</code></td><td><img src="https://raw.githubusercontent.com/Elflare/images-repo/refs/heads/main/zrlong/sample/ytdy.jpg" class="demo-img"></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h4>词编码</h4>
+        <p style="margin-top:1rem; font-size:0.9rem; color:var(--text-gray);">注：S=声母, Y=韵母, S0=末字声母</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>多字编码</th><th>编码方式</th><th>演示编码</th><th>演示</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>2 字词</td><td><code>S1 Y1 S2 Y2</code></td><td>jidf</td><td><img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/sample/jidf.jpg" class="demo-img"></td></tr>
+                    <tr><td>3 字词</td><td><code>S1 S2 S3 Y3</code></td><td>jsjj</td><td><img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/sample/jsjj.jpg" class="demo-img"></td></tr>
+                    <tr><td>4 字及以上</td><td><code>S1 S2 S3 S0</code></td><td>bnmz</td><td><img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/sample/bnmz.jpg" class="demo-img"></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. 功能 Tab -->
+    <div id="features" class="tab-content tab-pane">
+        <h2>实用功能</h2>
+
+        <h3 class="section-title">自定义短语</h3>
+        <p>在 <code>zrlong_custom_phrases.txt</code> 中配置，具体格式请参考该文件中的说明。</p>
+
+        <h3 class="section-title">多重反查</h3>
+        <p>反查时，引导前缀（如 `obh`）会被隐藏，避免视觉干扰。</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th width="15%">反查方式</th><th width="30%">规则</th><th width="15%">示例编码</th><th>示例演示</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>通配符反查</strong></td>
+                        <td><code>SY`F</code> (自然码双拼)</td>
+                        <td><code>ka`</code></td>
+                        <td><img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/sample/kj%60.jpg" class="demo-img"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>虎码反查</strong></td>
+                        <td><code>`</code> + 编码 (X=任意, +=更多)</td>
+                        <td><code>`j</code></td>
+                        <td><img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/sample/%60j.jpg" class="demo-img"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>笔画反查</strong></td>
+                        <td><code>obh</code> + <code>[hpszd]</code> (横撇竖折点)</td>
+                        <td><code>obhhs</code></td>
+                        <td><img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/sample/obhhs.jpg" class="demo-img"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>两分反查</strong></td>
+                        <td><code>olf</code> + 自然码双拼</td>
+                        <td><code>olfhoho</code></td>
+                        <td><img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/sample/olfhoho.jpg" class="demo-img"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="section-title">手动造词</h3>
+        <p>造的词会排在默认编码之后，并存储在 <code>zrlong.txt</code> 中。</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th width="40%">造词方式</th><th width="20%">示例编码</th><th>演示</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong><code>'</code> 开头</strong> (直接输入拼音)</td>
+                        <td><code>'ztp'rp'lj</code></td>
+                        <td rowspan="2"><img src="https://raw.githubusercontent.com/Elflare/images-repo/main/zrlong/sample/zrl_zaoci.jpg" class="demo-img"></td>
+                    </tr>
+                    <tr>
+                        <td>打出字，<strong>上屏前按 <code>'</code></strong></td>
+                        <td><code>ztp'rp'lj</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="section-title">快捷工具</h3>
+        <ul>
+            <li><strong>时间</strong>：输入 <code>sj</code> → 当前时间</li>
+            <li><strong>日期</strong>：输入 <code>orq</code> → 当前日期</li>
+            <li><strong>日期时间</strong>：输入 <code>ors</code> → 日期+时间</li>
+            <li><strong>数字大写</strong>：<code>S</code> + 数字（如 <code>S123</code>）→ 一百二十三</li>
+            <li><strong>Emoji</strong>：<code>Ctrl + e</code> 切换 Emoji 滤镜</li>
+            <li><strong>英文输入</strong>：首字母大写 + 回车（<code>Zrlong</code> ⏎ → <code>zrlong</code>）；首字母大写 + 空格（<code>Zrlong</code> ␣ → <code>Zrlong</code>）</li>
+            <li><strong>简码提示</strong>：候选框会显示字或词的简码提示</li>
+        </ul>
+
+        <h3 class="section-title">飞键</h3>
+        <p>仅将声母 <code>y</code> 飞到了 <code>e</code> 键上（因为 e 的英文发音类似 y），韵母不受影响。飞键权重较低，不影响正常编码。</p>
+    </div>
+
+    <!-- 5. 性能 Tab -->
+    <div id="performance" class="tab-content tab-pane">
+        <h2>性能测评</h2>
+        <div class="alert-box alert-info">
+            <strong>数据摘要：</strong>
+            <ul style="margin-top: 0.5rem;">
+                <li>单字前 3000 字仅 1 个重码（"颂"，特取码后 0 重）。</li>
+                <li>词重 10000 多个，优于五笔（13000+）和传统双拼（18000+）。</li>
+            </ul>
+        </div>
+        
+        <h3 class="section-title">图表分析</h3>
+        <div class="vertical-stack">
+            <div class="stack-item">
+                <img src="https://raw.githubusercontent.com/Elflare/images-repo/refs/heads/main/zrlong/bench/zi.jpg" alt="单字测评" class="img-fluid zoom-img">
+                <p>单字性能对比</p>
+            </div>
+            <div class="stack-item">
+                <img src="https://raw.githubusercontent.com/Elflare/images-repo/refs/heads/main/zrlong/bench/ci.jpg" alt="词组测评" class="img-fluid zoom-img">
+                <p>词组性能对比</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. 鸣谢 Tab -->
+    <div id="credits" class="tab-content tab-pane">
+        <h2>鸣谢</h2>
+        <ul style="line-height: 2;">
+            <li><strong>原作者</strong>: <a href="https://hanxinma.gitlab.io/longma/ziranlong/" target="_blank">晡时之光</a></li>
+            <li>Rime 项目所发布的高品质输入法程序和词库</li>
+            <li><a href="https://github.com/ksqsf/rime-moran" target="_blank">℞ 魔然</a>：功能借鉴（反查、造词、Emoji、简码提示等）</li>
+            <li><a href="https://github.com/rime/rime-terra-pinyin" target="_blank">℞ 地球拼音</a>：音调信息</li>
+            <li><a href="https://github.com/hanzi-chai/rime-snow-pinyin" target="_blank">℞ 冰雪拼音</a>：整句模式数据</li>
+            <li><a href="https://tiger-code.com/" target="_blank">虎码</a>：词频信息</li>
+        </ul>
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+        <p>协议：方案主体依 CC-BY 4.0 协议，除非对应文件中另有说明。</p>
+    </div>
+
+</div>
+
+<footer>
+    <p>&copy; 2024-2025 自然龙 Rime 输入方案 · Designed for Efficiency</p>
+</footer>
+
+<script>
+    function openTab(tabId) {
+        // Hide all panes
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+        // Deactivate all buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        
+        // Activate selected
+        document.getElementById(tabId).classList.add('active');
+        // Find button that triggered this
+        const btns = document.querySelectorAll('.tab-btn');
+        for (let btn of btns) {
+            if (btn.getAttribute('onclick').includes(tabId)) {
+                btn.classList.add('active');
+                break;
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
