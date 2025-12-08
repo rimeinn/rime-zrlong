@@ -571,6 +571,29 @@
             position: relative;
         }
 
+        /* --- 修复：让功能区表格允许图片溢出 --- */
+        #features .table-wrap {
+            /* 核心代码：允许内容超出容器边框 */
+            overflow: visible !important; 
+            /* 因为取消了溢出隐藏，圆角可能会失效，手动补一个边框裁剪(可选) */
+            /* 实际上为了让图片飞出来，我们必须牺牲容器的圆角裁剪特性，或者只针对图片做特殊处理 */
+        }
+
+        /* --- 调整：设定图片为 400px，并防止被挤压 --- */
+        #features .demo-img {
+            width: 400px;       /* 你改的大小 */
+            max-width: none;    /* 强制图片不跟随单元格缩小 */
+            object-fit: contain;
+        }
+
+        /* --- 优化：图片基础很大了，悬停时缩放倍率可以调小一点 --- */
+        #features .demo-img:hover {
+            /* 400px * 1.2 = 480px，已经很大了。
+               原本是 1.8倍，400 * 1.8 = 720px 会大到占满屏幕 */
+            transform: scale(1.2); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); /* 加深阴影，让它看起来浮得更高 */
+            z-index: 999; /* 确保它盖住所有东西 */
+        }
         .vertical-stack {
             display: flex;
             flex-direction: column;
